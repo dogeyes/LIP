@@ -1,0 +1,2 @@
+# LIP
+language implementation pattern
