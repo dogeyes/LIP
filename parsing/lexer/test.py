@@ -8,7 +8,10 @@ class Token(object):
         self.type = _type
 
     def __repr__(self):
-        return "<%s, %s>" % (self.content, self.type)
+        return "<'%s', %s>" % (self.content, self.type)
+
+    def __eq__(self, t):
+        return self.content == t.content and self.type == t.type
 
 
 class TYPE(Enum):
@@ -33,7 +36,7 @@ class ListLexer(object):
             elif c is '[':
                 return Token('[', TYPE.LBRACK)
             elif c is ']':
-                return Token('[', TYPE.RBRACK)
+                return Token(']', TYPE.RBRACK)
             elif c in [' ', '\t', '\n']:
                 continue
             else:
@@ -47,3 +50,4 @@ if __name__ == "__main__":
     while not t.type == TYPE.EOF:
         print(t)
         t = lexer.nextToken()
+    print(t)
