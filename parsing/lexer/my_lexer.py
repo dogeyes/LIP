@@ -1,6 +1,6 @@
 import sys
-from my_token import Token
-from my_token import TYPE
+from parsing.lexer.my_token import Token
+from parsing.lexer.my_token import TYPE
 
 
 class Lexer:
@@ -48,6 +48,8 @@ class ListLexer(Lexer):
             elif self.c is ']':
                 self.__consume()
                 return Token(']', TYPE.RBRACK)
+            elif self.c is '=':
+                return Token('=', TYPE.EQUAL)
             elif self.c in [' ', '\t', '\n', '\r']:
                 self.__WS()
                 continue

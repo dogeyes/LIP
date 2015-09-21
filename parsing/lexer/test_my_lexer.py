@@ -1,8 +1,8 @@
 """Test for test.py"""
-from my_token import Token
-from my_token import TYPE
+from parsing.lexer.my_token import Token
+from parsing.lexer.my_token import TYPE
 import unittest
-from my_lexer import ListLexer
+from parsing.lexer.my_lexer import ListLexer
 
 
 class TestTest(unittest.TestCase):

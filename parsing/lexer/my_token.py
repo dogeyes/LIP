@@ -7,6 +7,7 @@ class TYPE(Enum):
     COMMA = 2
     NAME = 3
     EOF = 4
+    EQUAL = 5
 
 
 class Token(object):
@@ -19,4 +20,3 @@ class Token(object):
 
     def __eq__(self, t):
         return self.content == t.content and self.type == t.type
-
