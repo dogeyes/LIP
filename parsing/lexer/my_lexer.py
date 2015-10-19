@@ -23,8 +23,8 @@ class ListLexer(Lexer):
             self.c = self.content[self.index]
 
     def __isLetter(self):
-        return (('a' <= self.c and self.c <= 'z')
-                or ('A' <= self.c and self.c <= 'Z'))
+        return (('a' <= self.c and self.c <= 'z') or
+                ('A' <= self.c and self.c <= 'Z'))
 
     def __WS(self):
         while(self.c in [' ', '\t', '\n', '\r']):
@@ -49,6 +49,7 @@ class ListLexer(Lexer):
                 self.__consume()
                 return Token(']', TYPE.RBRACK)
             elif self.c is '=':
+                self.__consume()
                 return Token('=', TYPE.EQUAL)
             elif self.c in [' ', '\t', '\n', '\r']:
                 self.__WS()
