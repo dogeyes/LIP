@@ -13,12 +13,13 @@ def debug_logging(func):
     return logged_func
 
 
-class BacktrackParser():
+class MemoryParser():
 
     def __init__(self, input):
         self.input = input
         self.markers = []
         self.lookahead = []
+        self.listmemo = {}
         self.p = 0
 
     def __LT(self, i):
@@ -28,6 +29,7 @@ class BacktrackParser():
     def __LA(self, i):
         return self.__LT(i).type
 
+    @debug_logging
     def match(self, x):
         if self.__LA(1) == x:
             self.consume()
@@ -52,7 +54,11 @@ class BacktrackParser():
         if self.p == len(self.lookahead) and not self.isSpeculating():
             self.p = 0
             self.lookahead = []
+            self.clearMemo()
         self.sync(1)
+
+    def clearMemo(self):
+        self.listmemo = {}
 
     def isSpeculating(self):
         return len(self.markers) > 0
@@ -106,10 +112,54 @@ class BacktrackParser():
     def assign(self):
         logging.debug("assgin")
         self.list()
+        logging.debug("p: %d" % self.p)
         self.match(TYPE.EQUAL)
         self.list()
 
+    @debug_logging
     def list(self):
+        failed = False
+        startTokenIndex = self.index()
+        if (self.isSpeculating() and self.alreadyParsedRule(self.listmemo)):
+            logging.debug("matched")
+            return
+        try:
+            self._list()
+        except Exception:
+            failed = True
+            raise
+        finally:
+            if self.isSpeculating():
+                self.memoize(self.listmemo, startTokenIndex, failed)
+
+    @debug_logging
+    def alreadyParsedRule(self, memo):
+        logging.debug(memo)
+        memoI = memo.get(self.index(), None)
+        if memoI is None:
+            return False
+        logging.debug("parsed list before at index " + str(self.index()) +
+                      "; skip ahead to token index " + str(memoI) + ": " +
+                      str(self.lookahead[memoI]))
+        if memoI >= 0:
+            self.seek(memoI)
+            return True
+        if memoI < 0:
+            logging.debug("pared failed before")
+            raise Exception("previous parsing failed")
+
+    def memoize(self, memo, startTokenIndex, failed):
+        stopTokenIndex = -1 if failed else self.index()
+        memo[startTokenIndex] = stopTokenIndex
+
+    @debug_logging
+    def index(self):
+        return self.p
+
+    @debug_logging
+    def _list(self):
+        logging.debug(self.index())
+        logging.debug("parse list rule at token index: " + str(self.index()))
         self.match(TYPE.LBRACK)
         self.elements()
         self.match(TYPE.RBRACK)
@@ -136,5 +186,5 @@ class BacktrackParser():
 
 if __name__ == "__main__":
     lexer = ListLexer(sys.argv[1])
-    parser = BacktrackParser(lexer)
+    parser = MemoryParser(lexer)
     parser.stat()
